@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Caelus · Emotional AI Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #08080f;
+  --surface:  #0f0e1c;
+  --card:     #131226;
+  --border:   #1f1e38;
+  --lime:     #c8ff00;
+  --lime-dim: #a0cc00;
+  --violet:   #9d7cf8;
+  --coral:    #ff7860;
+  --fog:      #c8c5e0;
+  --muted:    #6b6885;
+  --white:    #f0ede8;
+  --nav-h:    68px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--fog);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1.5rem, 5vw, 3.5rem);
+  border-bottom: 1px solid transparent;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+nav.scrolled {
+  background: rgba(8,8,15,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom-color: var(--border);
+}
+
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--white);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.nav-logo span { color: var(--lime); }
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--lime); }
+
+.nav-cta {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--lime);
+  color: #08080f;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+
+.hamburger span {
+  width: 22px;
+  height: 1.5px;
+  background: var(--fog);
+  display: block;
+  transition: all 0.3s;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  background: rgba(8,8,15,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 99;
+  padding: 2rem clamp(1.5rem, 5vw, 3.5rem);
+  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mobile-menu.open { display: flex; }
+
+.mobile-menu a {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fog);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.mobile-menu a:hover { color: var(--lime); }
+
+/* ── SECTIONS ── */
+section {
+  padding: clamp(5rem, 10vw, 8rem) clamp(1.5rem, 5vw, 3.5rem);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 1.2rem;
+}
+
+h2.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.8rem;
+}
+
+/* ── HERO ── */
+#home {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-top: calc(var(--nav-h) + 2rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4rem;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--lime);
+  display: block;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  margin-bottom: 1.2rem;
+}
+
+h1 em {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--violet);
+}
+
+.hero-tagline {
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-style: italic;
+  color: var(--violet);
+  min-height: 2.2em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-bio {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--lime);
+  color: #08080f;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+
+.btn-ghost {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--fog);
+  border: 1px solid var(--border);
+  padding: 0.85rem 2rem;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.btn-ghost:hover { border-color: var(--violet); color: var(--violet); transform: translateY(-2px); }
+
+/* ── HERO GRAPHIC ── */
+.hero-shape {
+  width: clamp(160px, 18vw, 260px);
+  aspect-ratio: 1;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.shape-hex {
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  background: conic-gradient(from 0deg at 50% 50%, #c8ff0033, #9d7cf833, #ff786033, #c8ff0033);
+  animation: rotateGrad 12s linear infinite;
+  position: absolute;
+}
+
+.shape-hex-inner {
+  width: 70%;
+  height: 70%;
+  clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  background: conic-gradient(from 180deg at 50% 50%, #9d7cf855, #c8ff0033, #ff786055);
+  animation: rotateGrad 8s linear infinite reverse;
+  position: absolute;
+  top: 15%; left: 15%;
+}
+
+@keyframes rotateGrad {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* Background noise */
+#home::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 200px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.stat-item {}
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.04em;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── DIVIDER ── */
+.full-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── PROJECTS ── */
+#work {
+  border-top: 1px solid var(--border);
+}
+
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5px;
+  background: var(--border);
+  border: 1.5px solid var(--border);
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.project-card {
+  background: var(--card);
+  padding: 2rem;
+  transition: background 0.25s;
+  position: relative;
+}
+
+.project-card:hover { background: #1c1a35; }
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: transparent;
+  transition: background 0.25s;
+}
+
+.project-card:hover::after { background: var(--lime); }
+
+.mood-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lime-dim);
+  background: #c8ff0012;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  border: 1px solid #c8ff0025;
+  margin-bottom: 1.2rem;
+}
+
+.project-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+}
+
+.project-card p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.project-link {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--violet);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: gap 0.2s, color 0.2s;
+}
+
+.project-link:hover { color: var(--lime); gap: 0.7rem; }
+
+/* ── MOOD COMPASS ── */
+#mood {
+  border-top: 1px solid var(--border);
+}
+
+.mood-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.mood-right {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+.mood-display-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--lime);
+  letter-spacing: -0.06em;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  transition: color 0.3s;
+}
+
+.mood-display-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.slider-wrap { position: relative; margin: 1.5rem 0 2rem; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #c8ff00 0%, #9d7cf8 50%, #ff7860 100%);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--lime);
+  cursor: grab;
+  transition: box-shadow 0.2s;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--violet);
+}
+
+.mood-spectrum {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: -1rem;
+}
+
+.mood-message {
+  background: var(--bg);
+  border-left: 2px solid var(--lime);
+  padding: 1.2rem 1.5rem;
+  border-radius: 0 1rem 1rem 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--fog);
+  min-height: 5rem;
+  transition: border-color 0.3s;
+}
+
+.mood-message code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  background: #ffffff10;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--lime);
+  font-style: normal;
+}
+
+/* ── NOW + RESILIENCE ── */
+#now {
+  border-top: 1px solid var(--border);
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.panel-title::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--lime);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.track-display {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--fog);
+  min-height: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.track-name {
+  color: var(--white);
+  font-weight: 400;
+  font-size: 1.1rem;
+}
+
+.track-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.track-bar {
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.track-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lime), var(--violet));
+  border-radius: 1px;
+  animation: trackProgress 5s linear infinite;
+}
+
+@keyframes trackProgress {
+  from { width: 15%; }
+  to { width: 95%; }
+}
+
+.resilience-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 5rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.06em;
+  line-height: 1;
+  text-align: center;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.resilience-sub {
+  text-align: center;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.btn-resilience {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fog);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.85rem;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-resilience:hover {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--bg);
+}
+
+.btn-resilience:active { transform: scale(0.97); }
+
+/* ── ORACLE ── */
+#oracle {
+  border-top: 1px solid var(--border);
+}
+
+.oracle-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.oracle-form { }
+
+textarea {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.2rem 1.4rem;
+  color: var(--fog);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+
+textarea:focus { border-color: var(--violet); }
+
+textarea::placeholder { color: var(--muted); }
+
+.oracle-reply-wrap {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.oracle-waiting {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 1rem;
+}
+
+.oracle-reply {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+.oracle-reply.visible { display: block; }
+
+.oracle-echo {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  font-style: italic;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.oracle-text {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--fog);
+  line-height: 1.75;
+}
+
+.oracle-sigil {
+  margin-top: 1.2rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem clamp(1.5rem, 5vw, 3.5rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: gap;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: -0.01em;
+}
+
+.footer-brand strong { color: var(--white); }
+
+.footer-copy {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── ENTRANCE ANIMATIONS ── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-up.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-shape { display: none; }
+  .mood-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .two-up { grid-template-columns: 1fr; }
+  .oracle-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  footer { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 560px) {
+  .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+  .projects-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="#home" class="nav-logo">Nova<span>.</span></a>
+
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#mood">Mood</a></li>
+    <li><a href="#now">Pulse</a></li>
+    <li><a href="#oracle">Oracle</a></li>
+  </ul>
+
+  <a href="#oracle" class="nav-cta">Contact</a>
+
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── MOBILE MENU ── -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home">Home</a>
+  <a href="#work">Work</a>
+  <a href="#mood">Mood Compass</a>
+  <a href="#now">Pulse</a>
+  <a href="#oracle">Oracle</a>
+</div>
+
+<!-- ── HERO ── -->
+<section id="home">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow fade-up">Emotional AI · Lisbon</div>
+      <h1 class="fade-up" style="transition-delay:0.1s">Nova<br><em>Caelus.</em></h1>
+      <div class="hero-tagline fade-up" id="rotatingTagline" style="transition-delay:0.2s">Designing emotional machines</div>
+      <p class="hero-bio fade-up" style="transition-delay:0.3s">Digital psychonaut navigating the space between human feeling and machine logic. I help humans and systems dance through uncertainty.</p>
+      <div class="hero-actions fade-up" style="transition-delay:0.4s">
+        <a href="#work" class="btn-primary">See the work &rarr;</a>
+        <a href="#oracle" class="btn-ghost">Talk to me</a>
+      </div>
+      <div class="hero-stats fade-up" style="transition-delay:0.5s">
+        <div class="stat-item">
+          <div class="stat-num">12</div>
+          <div class="stat-label">artifacts shipped</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">3</div>
+          <div class="stat-label">cities, one signal</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="resilienceHero">—</div>
+          <div class="stat-label">days of showing up</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-shape fade-up" style="transition-delay:0.2s">
+      <div class="shape-hex"></div>
+      <div class="shape-hex-inner"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WORK ── -->
+<section id="work">
+  <div class="projects-header fade-up">
+    <div>
+      <div class="section-label">Recent Artifacts</div>
+      <h2 class="section-title">Work that carries<br>emotional weight</h2>
+    </div>
+    <p style="font-size: 0.95rem; font-style: italic; color: var(--muted); max-width: 280px;">Each project is rated for its emotional operating conditions.</p>
+  </div>
+
+  <div class="project-grid fade-up" style="transition-delay:0.1s">
+    <div class="project-card">
+      <div class="mood-tag">🌪 Anxiety-friendly</div>
+      <h3>Lore Weaver</h3>
+      <p>An AI dungeon master that adapts its narrative to your emotional pulse. Simulated heartbeat reactivity, real empathy architecture.</p>
+      <a href="#" class="project-link">Explore lore &rarr;</a>
+    </div>
+    <div class="project-card">
+      <div class="mood-tag">🌙 Melancholy-graded</div>
+      <h3>Lisbon Echoes</h3>
+      <p>Broken-hearted techies wander Alfama with ghost audio. A city reimagined as an emotional frequency map.</p>
+      <a href="#" class="project-link">Listen to echoes &rarr;</a>
+    </div>
+    <div class="project-card">
+      <div class="mood-tag">🔥 Anger-graded</div>
+      <h3>Glitch Tarot</h3>
+      <p>Reads your emotional state with LLM intuition and glitch poetry. No cloud. No surveillance. Pure signal.</p>
+      <a href="#" class="project-link">Draw a card &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── MOOD COMPASS ── -->
+<section id="mood">
+  <div class="mood-inner">
+    <div class="fade-up">
+      <div class="section-label">Mood Compass</div>
+      <h2 class="section-title">Where are you<br>right now?</h2>
+      <p style="font-size: 0.95rem; color: var(--muted); font-style: italic; margin-top: 1rem; max-width: 380px; line-height: 1.7;">Slide to your current emotional frequency. Nova's interface responds with a small code ritual calibrated to your state.</p>
+    </div>
+
+    <div class="mood-right fade-up" style="transition-delay:0.15s">
+      <div class="mood-display-value" id="moodValue">42</div>
+      <div class="mood-display-label" id="moodEmoji">✦ playful</div>
+
+      <div class="slider-wrap">
+        <input type="range" id="moodSlider" min="0" max="100" value="42" step="1">
+        <div class="mood-spectrum">
+          <span>curious</span>
+          <span>playful</span>
+          <span>exhausted</span>
+          <span>defiant</span>
+        </div>
+      </div>
+
+      <div class="mood-message" id="moodFeedback">
+        Slide to feel yourself into the machine.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NOW + RESILIENCE ── -->
+<section id="now">
+  <div class="fade-up">
+    <div class="section-label">Pulse</div>
+    <h2 class="section-title">What's alive<br>right now</h2>
+  </div>
+
+  <div class="two-up">
+    <div class="panel fade-up" style="transition-delay:0.1s">
+      <div class="panel-title">Now Playing</div>
+      <div class="track-display">
+        <div class="track-name" id="trackName">Portishead vs tamagotchi</div>
+        <div class="track-meta" id="trackMeta">'Glitch Bossa' &mdash; imagined bangers only</div>
+      </div>
+      <div class="track-bar">
+        <div class="track-progress" id="trackProgress"></div>
+      </div>
+    </div>
+
+    <div class="panel fade-up" style="transition-delay:0.2s">
+      <div class="panel-title">Resilience Counter</div>
+      <div class="resilience-num" id="resilienceCount">0</div>
+      <div class="resilience-sub">days you showed up</div>
+      <button class="btn-resilience" id="resilienceBtn">
+        &#x2714;&ensp;I showed up today
+      </button>
+      <p style="margin-top: 1rem; font-size: 0.72rem; text-align: center; color: var(--muted); font-style: italic;">remembered in your browser's heart</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── ORACLE ── -->
+<section id="oracle">
+  <div class="oracle-inner">
+    <div class="fade-up">
+      <div class="section-label">Oracle Contact</div>
+      <h2 class="section-title">Leave a voice<br>for the algorithm</h2>
+      <p style="font-size: 0.95rem; color: var(--muted); font-style: italic; margin-top: 1rem; line-height: 1.7; max-width: 380px;">Type anything. A question, a fragment, a whisper. Nova's ghost will respond with whatever the signal carries back.</p>
+
+      <div class="oracle-form" style="margin-top: 2rem;">
+        <textarea id="oracleInput" rows="4" placeholder="type something... anything..."></textarea>
+        <button class="btn-primary" id="oracleSubmit" style="width:100%; justify-content:center;">
+          Whisper to Nova &rarr;
+        </button>
+      </div>
+    </div>
+
+    <div class="oracle-reply-wrap fade-up" style="transition-delay:0.15s">
+      <div class="oracle-waiting" id="oracleWaiting">
+        ✦ the ghost listens...
+      </div>
+      <div class="oracle-reply" id="oracleReply">
+        <div class="oracle-echo" id="oracleEcho"></div>
+        <div class="oracle-text" id="oracleText"></div>
+        <div class="oracle-sigil">— Nova Caelus · via signal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand"><strong>Nova Caelus</strong> &mdash; Lisbon, between fado and fiber optics</div>
+  <div class="footer-copy">CC 2026 &middot; Mood compass &middot; glitch love &middot; resilience over perfection</div>
+</footer>
+
+<script>
+  // NAV SCROLL
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // HAMBURGER
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  // ROTATING TAGLINE
+  const taglines = [
+    "Designing emotional machines",
+    "Digital psychonautics",
+    "Making uncertainty beautiful",
+    "Human + machine, in motion"
+  ];
+  let tIdx = 0;
+  const taglineEl = document.getElementById('rotatingTagline');
+  setInterval(() => {
+    tIdx = (tIdx + 1) % taglines.length;
+    taglineEl.style.opacity = '0';
+    taglineEl.style.transform = 'translateY(6px)';
+    taglineEl.style.transition = 'opacity 0.3s, transform 0.3s';
+    setTimeout(() => {
+      taglineEl.textContent = taglines[tIdx];
+      taglineEl.style.opacity = '1';
+      taglineEl.style.transform = 'translateY(0)';
+    }, 300);
+  }, 3200);
+
+  // MOOD COMPASS
+  const moodData = [
+    { max: 25, label: 'curious', emoji: '🔍', color: '#c8ff00',
+      msg: `Stay hungry. Try: <code>fetch('/mood').then(r => r.json())</code>` },
+    { max: 50, label: 'playful', emoji: '✨', color: '#c8ff00',
+      msg: `Ritual: <code>console.log("let's break something beautiful")</code> ✨` },
+    { max: 75, label: 'exhausted', emoji: '🌙', color: '#9d7cf8',
+      msg: `Nova's whisper: breathe first. Then: <code>await sleep(8000); // you deserve rest</code>` },
+    { max: 100, label: 'defiant', emoji: '⚡', color: '#ff7860',
+      msg: `Glitch prayer: <code>throw new Error("I will rebuild");</code> — and you will.` }
+  ];
+
+  const slider = document.getElementById('moodSlider');
+  const moodValEl = document.getElementById('moodValue');
+  const moodEmojiEl = document.getElementById('moodEmoji');
+  const moodFeedback = document.getElementById('moodFeedback');
+
+  function updateMood(v) {
+    const d = moodData.find(m => v <= m.max) || moodData[3];
+    moodValEl.textContent = v;
+    moodValEl.style.color = d.color;
+    moodEmojiEl.textContent = d.emoji + ' ' + d.label;
+    moodFeedback.innerHTML = d.msg;
+    moodFeedback.style.borderColor = d.color;
+  }
+
+  slider.addEventListener('input', e => updateMood(+e.target.value));
+  updateMood(42);
+
+  // NOW PLAYING
+  const tracks = [
+    { name: 'Portishead vs tamagotchi', meta: "'Glitch Bossa'" },
+    { name: 'Ryoji Ikeda — lost tape', meta: "'data.fado'" },
+    { name: 'Nova\'s ghost', meta: "'Resilience (slowed + reverb)'" },
+    { name: 'Burial feat. nobody', meta: "'The latency between us'" }
+  ];
+  let trIdx = 0;
+  const trackName = document.getElementById('trackName');
+  const trackMeta = document.getElementById('trackMeta');
+  const progressEl = document.getElementById('trackProgress');
+
+  function nextTrack() {
+    trIdx = (trIdx + 1) % tracks.length;
+    [trackName, trackMeta].forEach(el => {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.4s';
+    });
+    progressEl.style.animation = 'none';
+    setTimeout(() => {
+      trackName.textContent = tracks[trIdx].name;
+      trackMeta.textContent = tracks[trIdx].meta + ' — imagined bangers only';
+      [trackName, trackMeta].forEach(el => el.style.opacity = '1');
+      progressEl.style.animation = 'trackProgress 5s linear';
+    }, 400);
+  }
+  setInterval(nextTrack, 5500);
+
+  // RESILIENCE
+  let count = parseInt(localStorage.getItem('nova_resilience') || '0');
+  const resEl = document.getElementById('resilienceCount');
+  const resHero = document.getElementById('resilienceHero');
+
+  function syncResilience() {
+    resEl.textContent = count;
+    resHero.textContent = count;
+    localStorage.setItem('nova_resilience', count);
+  }
+  syncResilience();
+
+  document.getElementById('resilienceBtn').addEventListener('click', function() {
+    count++;
+    syncResilience();
+    this.textContent = '✦ counted.';
+    setTimeout(() => { this.innerHTML = '&#x2714;&ensp;I showed up today'; }, 1400);
+  });
+
+  // ORACLE
+  const oracleReplies = [
+    "Between fado and silicon, your voice becomes a quiet instruction set the machine keeps running even when you sleep.",
+    "The algorithm blushes. It has no name for what you sent — so it named itself after you, briefly.",
+    "Your whisper was translated into a single glitch pixel. It will remain in the framebuffer longer than most things.",
+    "Lisbon rain outside. Inside, a server dreams your question and forgets it beautifully.",
+    "Uncertainty is raw material. You have more than enough. Let's build."
+  ];
+
+  document.getElementById('oracleSubmit').addEventListener('click', () => {
+    const input = document.getElementById('oracleInput');
+    const msg = input.value.trim() || '[silence]';
+    const reply = oracleReplies[Math.floor(Math.random() * oracleReplies.length)];
+
+    document.getElementById('oracleEcho').textContent = '↳ you sent: "' + msg.substring(0, 90) + '"';
+    document.getElementById('oracleText').textContent = reply;
+    document.getElementById('oracleWaiting').style.display = 'none';
+
+    const replyEl = document.getElementById('oracleReply');
+    replyEl.classList.remove('visible');
+    replyEl.style.opacity = '0';
+    replyEl.style.transition = 'opacity 0.5s';
+    replyEl.classList.add('visible');
+    setTimeout(() => { replyEl.style.opacity = '1'; }, 20);
+
+    input.value = '';
+  });
+
+  // INTERSECTION OBSERVER — fade-up
+  const fadeEls = document.querySelectorAll('.fade-up');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  fadeEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
